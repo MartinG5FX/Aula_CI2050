@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1e40af">
+    <title>Aula Virtual - Chile Innova 2050</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        html, body {
+            min-height: 100%;
+            height: auto;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+            text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        .bg-chile-blue { background-color: #1e40af; }
+        .hover\:bg-chile-blue-dark:hover { background-color: #1e3a8a; }
+        .text-chile-blue { color: #1e40af; }
+        .bg-chile-red { background-color: #d91424; }
+        .bg-chile-red-hover:hover { background-color: #b9101e; }
+        .bg-chile-purple { background-color: #5c1d47; }
+        .hover\:bg-chile-purple-dark:hover { background-color: #431534; }
+        .border-chile-purple { border-color: #5c1d47; }
+        .text-chile-purple { color: #5c1d47; }
+
+        .circle-btn-wrapper {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform;
+        }
+        @media (hover: hover) {
+            .circle-btn-wrapper:hover {
+                transform: translateY(-8px);
+            }
+        }
+        .circle-outer-ring {
+            border: 4px solid #ffffff;
+            box-shadow: 0 10px 25px -5px rgba(92, 29, 71, 0.3);
+        }
+        
+        .modal-enter {
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        #toast-container {
+            position: fixed;
+            bottom: calc(20px + env(safe-area-inset-bottom));
+            left: 20px;
+            right: 20px;
+            z-index: 9999;
+            pointer-events: none;
+        }
+        @media (min-width: 640px) {
+            #toast-container {
+                left: 20px;
+                right: auto;
+                max-width: 28rem;
+            }
+        }
+
+        /* Botón de Ayuda Flotante Adaptable */
+        .help-floating-btn {
+            position: fixed;
+            bottom: calc(20px + env(safe-area-inset-bottom));
+            right: calc(20px + env(safe-area-inset-right));
+            width: 65px;
+            height: 65px;
+            z-index: 9000;
+            cursor: pointer;
+            transition: transform 0.2s ease, filter 0.2s ease;
+        }
+        @media (min-width: 768px) {
+            .help-floating-btn {
+                width: 80px;
+                height: 80px;
+                bottom: 24px;
+                right: 24px;
+            }
+        }
+        .help-floating-btn:active {
+            transform: scale(0.92);
+        }
+        .help-bg-circle {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .help-icon-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+        @media (min-width: 768px) {
+            .help-icon-inner {
+                width: 38px;
+                height: 38px;
+            }
+        }
+
+        .safe-area-pb { padding-bottom: env(safe-area-inset-bottom); }
+        
+        input, select, textarea {
+            font-size: 16px !important;
+        }
+        @media (min-width: 768px) {
+            input, select, textarea {
+                font-size: 0.875rem !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-gray-800 bg-slate-100 safe-area-pb">
+
+    <!-- 1. PANTALLA INICIAL DE SELECCIÓN DE PERFIL -->
+    <div id="role-selection-screen" class="min-h-screen flex flex-col justify-between bg-slate-100">
+        <div class="w-full">
+            <!-- Banner Sin Texto Superior "Chile Innova 2050", solo color -->
+            <div class="w-full bg-chile-blue h-24 sm:h-32 md:h-40 shadow-sm flex justify-center items-center overflow-hidden">
+            </div>
+
+            <main class="max-w-4xl mx-auto p-4 sm:p-6 md:p-8 my-2 sm:my-6">
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-200 p-5 sm:p-8 md:p-10 text-center">
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-blue-900 mb-2">Selecciona tu Perfil de Acceso</h2>
+                    <p class="text-xs sm:text-sm text-gray-500 mb-6 sm:mb-8">Elige cómo deseas ingresar al Aula Virtual de Chile Innova 2050</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 max-w-2xl mx-auto">
+                        <!-- TARJETA ESTUDIANTE -->
+                        <div onclick="selectRole('estudiante')" class="cursor-pointer bg-slate-50 hover:bg-blue-50 border-2 border-gray-200 hover:border-chile-blue rounded-2xl p-5 sm:p-6 transition duration-300 flex flex-col items-center group shadow-sm hover:shadow-md active:scale-98">
+                            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-blue-100 text-chile-blue flex items-center justify-center text-xl sm:text-2xl mb-3 sm:mb-4 group-hover:scale-110 transition">
+                                <i class="fa-solid fa-user-graduate"></i>
+                            </div>
+                            <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-2">Estudiante</h3>
+                            <p class="text-xs text-gray-500 leading-relaxed">Acceso con credenciales creadas e ingresadas por el docente.</p>
+                            <span class="mt-4 sm:mt-6 inline-flex items-center text-xs font-bold text-chile-blue uppercase tracking-wider">
+                                INGRESAR COMO ESTUDIANTE <i class="fa-solid fa-arrow-right ml-2"></i>
+                            </span>
+                        </div>
+
+                        <!-- TARJETA DOCENTE -->
+                        <div onclick="selectRole('docente')" class="cursor-pointer bg-slate-50 hover:bg-purple-50 border-2 border-gray-200 hover:border-chile-purple rounded-2xl p-5 sm:p-6 transition duration-300 flex flex-col items-center group shadow-sm hover:shadow-md active:scale-98">
+                            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-purple-100 text-chile-purple flex items-center justify-center text-xl sm:text-2xl mb-3 sm:mb-4 group-hover:scale-110 transition">
+                                <i class="fa-solid fa-chalkboard-user"></i>
+                            </div>
+                            <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-2">Docente</h3>
+                            <p class="text-xs text-gray-500 leading-relaxed">Acceso de administración para crear perfiles, recursos y evaluaciones.</p>
+                            <span class="mt-4 sm:mt-6 inline-flex items-center text-xs font-bold text-chile-purple uppercase tracking-wider">
+                                ACCESO DOCENTE <i class="fa-solid fa-arrow-right ml-2"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <footer class="bg-gray-900 text-white py-4 border-t border-gray-800 text-center text-xs text-gray-400 px-4">
+            <p>© 2026 Academia de Innovación y Productividad - Chile Innova 2050.</p>
+        </footer>
+    </div>
+
+    <!-- 2. FORMULARIO DE INICIO DE SESIÓN / REGISTRO DOCENTE Y RECUPERACIÓN -->
+    <div id="auth-screen" class="hidden min-h-screen flex flex-col justify-between bg-slate-100">
+        <div class="w-full">
+            <div class="w-full bg-chile-blue h-20 sm:h-28 shadow-sm flex justify-center items-center"></div>
+
+            <main class="max-w-md mx-auto p-4 sm:p-6 md:p-8 my-2 sm:my-6">
+                <!-- FORMULARIO DE LOGIN -->
+                <div id="login-card" class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden p-5 sm:p-8">
+                    <button onclick="backToRoleSelection()" class="text-xs font-bold text-gray-500 hover:text-gray-800 mb-4 inline-flex items-center active:scale-95 transition">
+                        <i class="fa-solid fa-arrow-left mr-1.5"></i> Volver a Selección de Perfil
+                    </button>
+
+                    <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4 sm:space-y-5" autocomplete="off">
+                        <div class="text-center mb-4 sm:mb-6">
+                            <h2 id="auth-title" class="text-xl sm:text-2xl font-black text-blue-900">Acceso al Sistema</h2>
+                            <p id="auth-subtitle" class="text-xs text-gray-500 mt-1">Ingresa tus credenciales autorizadas.</p>
+                        </div>
+
+                        <div>
+                            <label id="label-identifier" class="block text-xs font-bold text-gray-700 uppercase mb-1">Correo Electrónico</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i id="icon-identifier" class="fa-solid fa-envelope"></i></span>
+                                <input type="email" id="login-identifier" required placeholder="correo@ejemplo.com" autocomplete="email" class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Contraseña</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i class="fa-solid fa-lock"></i></span>
+                                <input type="password" id="login-password" required placeholder="••••••••" autocomplete="current-password" class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            </div>
+                        </div>
+
+                        <!-- CAMPO PIN DE SEGURIDAD PARA DOCENTE -->
+                        <div id="docente-pin-field" class="hidden">
+                            <label class="block text-xs font-bold text-chile-purple uppercase mb-1"><i class="fa-solid fa-key mr-1"></i> PIN de Seguridad (4 dígitos)</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i class="fa-solid fa-shield-halved"></i></span>
+                                <input type="password" id="login-pin" maxlength="4" pattern="[0-9]{4}" inputmode="numeric" placeholder="••••" autocomplete="off" class="w-full pl-10 pr-3 py-2.5 border border-purple-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none tracking-widest text-center font-bold">
+                            </div>
+                        </div>
+
+                        <button type="submit" id="login-submit-btn" class="w-full bg-chile-blue hover:bg-chile-blue-dark text-white font-extrabold py-3 rounded-lg shadow-md transition text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center space-x-2 active:scale-98">
+                            <span>INGRESAR AL AULA</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </form>
+
+                    <!-- OPCIONES PARA DOCENTE: CREAR CUENTA O RECUPERAR HACKEO DE CLAVE -->
+                    <div id="docente-register-option" class="hidden mt-6 pt-4 border-t border-gray-200 text-center space-y-2">
+                        <button onclick="toggleDocenteRegister(true)" class="text-xs font-bold text-chile-purple hover:underline uppercase tracking-wider flex items-center justify-center mx-auto space-x-1">
+                            <i class="fa-solid fa-user-plus mr-1"></i>
+                            <span>¿Eres nuevo? Crear cuenta Docente</span>
+                        </button>
+                        <button onclick="iniciarRecuperacionCuenta()" class="text-xs font-semibold text-red-600 hover:underline flex items-center justify-center mx-auto space-x-1">
+                            <i class="fa-solid fa-shield-cat mr-1"></i>
+                            <span>¿Perdiste o te robación la contraseña? Restablecer Seguridad</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- FORMULARIO CREAR CUENTA DOCENTE NUEVO -->
+                <div id="register-docente-card" class="hidden bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden p-5 sm:p-8">
+                    <button onclick="toggleDocenteRegister(false)" class="text-xs font-bold text-gray-500 hover:text-gray-800 mb-4 inline-flex items-center active:scale-95 transition">
+                        <i class="fa-solid fa-arrow-left mr-1.5"></i> Volver a Inicio de Sesión
+                    </button>
+
+                    <form onsubmit="handleDocenteRegister(event)" class="space-y-4" autocomplete="off">
+                        <div class="text-center mb-4">
+                            <h2 class="text-xl sm:text-2xl font-black text-chile-purple">Crear Perfil Docente Completo</h2>
+                            <p class="text-xs text-gray-500 mt-1">Registra todos tus datos personales para la base de datos.</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nombre Completo</label>
+                            <input type="text" id="reg-doc-nombre" required placeholder="Ej. Prof. María González" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">RUT</label>
+                                <input type="text" id="reg-doc-rut" required placeholder="12.345.678-9" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Teléfono Fono</label>
+                                <input type="tel" id="reg-doc-fono" required placeholder="+56 9 1234 5678" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Correo Electrónico Real (Outlook/Gmail)</label>
+                            <input type="email" id="reg-doc-correo" required placeholder="docente@outlook.com" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Contraseña</label>
+                            <input type="password" id="reg-doc-pass" required placeholder="••••••••" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-chile-purple uppercase mb-1"><i class="fa-solid fa-key mr-1"></i> PIN de Seguridad (4 dígitos para recuperar)</label>
+                            <input type="password" id="reg-doc-pin" maxlength="4" pattern="[0-9]{4}" inputmode="numeric" required placeholder="••••" class="w-full px-3 py-2 border border-purple-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none tracking-widest text-center font-bold">
+                        </div>
+
+                        <button type="submit" class="w-full bg-chile-purple hover:bg-chile-purple-dark text-white font-extrabold py-3 rounded-lg shadow-md transition text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center space-x-2 active:scale-98">
+                            <i class="fa-solid fa-user-plus mr-1"></i>
+                            <span>REGISTRAR PERFIL DOCENTE</span>
+                        </button>
+                    </form>
+                </div>
+            </main>
+        </div>
+
+        <footer class="bg-gray-900 text-white py-4 border-t border-gray-800 text-center text-xs text-gray-400 px-4">
+            <p>© 2026 Academia de Innovación y Productividad - Chile Innova 2050.</p>
+        </footer>
+    </div>
+
+    <!-- 3. VISTA PRINCIPAL DEL AULA VIRTUAL (INICIO) -->
+    <div id="main-app" class="hidden min-h-screen flex flex-col justify-between relative">
+        <header class="w-full">
+            <div class="grid grid-cols-1 lg:grid-cols-12 items-center bg-white border-b border-gray-200">
+                
+                <!-- ÁREA DE LOGO (Sin Texto LOGO ni marcos molestos, solo el fondo) -->
+                <div class="lg:col-span-5 p-4 md:p-6 bg-slate-100 lg:bg-white border-b lg:border-b-0 border-gray-200 h-20 sm:h-24">
+                </div>
+
+                <!-- TARJETA DEL USUARIO Y LOGOUT -->
+                <div class="lg:col-span-7 bg-chile-blue text-white p-4 md:p-6 flex flex-col sm:flex-row items-center justify-between shadow-inner relative overflow-hidden gap-4">
+                    <div class="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-5 text-center sm:text-left z-10 w-full sm:w-auto">
+                        <div class="relative flex-shrink-0">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full bg-white flex items-center justify-center p-1 shadow-md border-2 border-gray-200 overflow-hidden">
+                                <img id="user-avatar-img" src="https://placehold.co/100x100/cbd5e1/475569?text=Perfil" alt="Perfil Usuario" class="w-full h-full object-cover rounded-full">
+                            </div>
+                        </div>
+
+                        <div class="space-y-0.5 text-xs md:text-sm w-full">
+                            <div class="flex items-center justify-center sm:justify-start space-x-2">
+                                <h2 id="greeting-title" class="font-bold text-sm sm:text-base md:text-lg text-white mb-1 border-b border-blue-400/40 pb-0.5">---</h2>
+                            </div>
+                            <p class="text-blue-100"><span class="font-semibold text-white">Nombre:</span> <span id="display-nombre">---</span></p>
+                            <p class="text-blue-100"><span class="font-semibold text-white">Rol:</span> <span id="display-rol" class="font-bold text-amber-300">---</span></p>
+                            <p class="text-blue-100"><span class="font-semibold text-white">RUT:</span> <span id="display-rut">---</span></p>
+                            <p class="text-blue-100"><span class="font-semibold text-white">Correo:</span> <span id="display-correo" class="break-all">---</span></p>
+                            <p class="text-blue-100"><span class="font-semibold text-white">Fono:</span> <span id="display-fono">---</span></p>
+                        </div>
+                    </div>
+
+                    <div class="z-10 w-full sm:w-auto text-right">
+                        <button onclick="handleLogout()" class="w-full sm:w-auto bg-chile-red bg-chile-red-hover text-white font-extrabold px-5 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all text-xs md:text-sm uppercase tracking-wider flex items-center justify-center space-x-2 active:scale-95">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span>SALIR!</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BARRA DE NAVEGACIÓN -->
+            <div class="bg-gray-300 border-b-2 border-gray-400 px-4 sm:px-6 py-2 flex items-center justify-between">
+                <div class="flex items-center">
+                    <button onclick="resetView()" class="bg-chile-red bg-chile-red-hover text-white font-black px-3.5 py-1.5 rounded-md shadow flex items-center space-x-2 text-xs sm:text-sm tracking-wide transition transform active:scale-95">
+                        <i class="fa-solid fa-house"></i>
+                        <span>INICIO!</span>
+                    </button>
+                    <span id="panel-role-text" class="ml-3 sm:ml-4 text-xs sm:text-sm font-semibold text-gray-700 truncate">
+                        / Panel Principal
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <!-- ÁREA CENTRAL DE BOTONES CIRCULARES VACÍOS SIN TEXTO INTERNO CON ETIQUETAS DINÁMICAS -->
+        <main class="flex-grow flex items-center justify-center p-4 sm:p-8 md:p-12 my-4 sm:my-6">
+            <div class="max-w-6xl w-full mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 md:gap-12 lg:gap-16 justify-items-center">
+                    
+                    <!-- BOTÓN 1: MIS CURSOS / CURSOS Y CREDENCIALES -->
+                    <div class="circle-btn-wrapper flex flex-col items-center cursor-pointer group active:scale-95" onclick="openModal('courses')">
+                        <div class="w-40 h-40 sm:w-52 sm:h-52 lg:w-64 lg:h-64 rounded-full bg-chile-purple circle-outer-ring flex items-center justify-center p-2 relative overflow-hidden group-hover:bg-purple-900 transition shadow-lg">
+                        </div>
+                        <h3 id="btn-label-1" class="mt-3 sm:mt-4 text-lg sm:text-xl lg:text-2xl font-black text-gray-900 tracking-wide uppercase text-center">MIS CURSOS</h3>
+                    </div>
+
+                    <!-- BOTÓN 2: RECURSOS / ADMINISTRAR RECURSOS -->
+                    <div class="circle-btn-wrapper flex flex-col items-center cursor-pointer group active:scale-95" onclick="openModal('resources')">
+                        <div class="w-40 h-40 sm:w-52 sm:h-52 lg:w-64 lg:h-64 rounded-full bg-chile-purple circle-outer-ring flex items-center justify-center p-2 relative overflow-hidden group-hover:bg-purple-900 transition shadow-lg">
+                        </div>
+                        <h3 id="btn-label-2" class="mt-3 sm:mt-4 text-lg sm:text-xl lg:text-2xl font-black text-gray-900 tracking-wide uppercase text-center">RECURSOS</h3>
+                    </div>
+
+                    <!-- BOTÓN 3: EVALUACIÓN / CREAR EVALUACIONES -->
+                    <div class="circle-btn-wrapper flex flex-col items-center cursor-pointer group active:scale-95" onclick="openModal('tests')">
+                        <div class="w-40 h-40 sm:w-52 sm:h-52 lg:w-64 lg:h-64 rounded-full bg-chile-purple circle-outer-ring flex items-center justify-center p-2 relative overflow-hidden group-hover:bg-purple-900 transition shadow-lg">
+                        </div>
+                        <h3 id="btn-label-3" class="mt-3 sm:mt-4 text-lg sm:text-xl lg:text-2xl font-black text-gray-900 tracking-wide uppercase text-center">EVALUACIÓN</h3>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+
+        <!-- SERVICIO DE AYUDA FLOTANTE -->
+        <div onclick="openModal('help_service')" class="help-floating-btn" title="Servicio de Ayuda y Soporte">
+            <div class="w-full h-full rounded-full bg-slate-300 border-2 border-white shadow-lg flex items-center justify-center text-chile-blue">
+                <i class="fa-solid fa-headset text-2xl sm:text-3xl"></i>
+            </div>
+        </div>
+
+        <footer class="bg-gray-900 text-white py-4 sm:py-6 border-t border-gray-800 text-center text-xs text-gray-400 px-4">
+            <p>© 2026 Academia de Innovación y Productividad - Chile Innova 2050. Todos los derechos reservados.</p>
+            <p class="mt-1">Sistema Aula Virtual LMS v5.0 Real-Time Sync</p>
+        </footer>
+    </div>
+
+    <!-- MODAL OVERLAY PRINCIPAL -->
+    <div id="modal-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-2 sm:p-4" onclick="preventBackdropClose(event)">
+        <div id="modal-content" class="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-3xl w-full overflow-hidden modal-enter border border-gray-100 max-h-[92vh] flex flex-col" onclick="event.stopPropagation()">
+            <div id="modal-header-bg" class="bg-chile-purple p-4 sm:p-5 text-white flex justify-between items-center flex-shrink-0">
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <i id="modal-icon" class="fa-solid fa-circle-info text-xl sm:text-2xl text-amber-400"></i>
+                    <h2 id="modal-title" class="text-base sm:text-xl font-bold uppercase tracking-wider text-white"></h2>
+                </div>
+                <button onclick="closeModal()" class="text-white/80 hover:text-white text-2xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition" title="Cerrar ventana">&times;</button>
+            </div>
+            <div id="modal-body" class="p-4 sm:p-6 overflow-y-auto flex-grow text-xs sm:text-sm"></div>
+            <div class="bg-gray-50 px-4 sm:px-6 py-3 border-t border-gray-100 flex justify-end flex-shrink-0">
+                <button onclick="closeModal()" class="bg-gray-700 hover:bg-gray-800 text-white px-4 sm:px-5 py-2 rounded-lg font-semibold text-xs sm:text-sm transition active:scale-95">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script>
+        // Bases de Datos Dinámicas en Tiempo Real
+        let docentesDB = [];
+        let estudiantesDB = [];
+        let cursosDB = [];
+        let materialesDB = [];
+        let evaluacionesDB = [];
+        let entregasDocenteDB = [];
+        let progresoEstudiantes = {};
+        let evaluacionesRendidas = {};
+
+        let currentRole = null;
+        let currentUser = null;
+
+        function selectRole(role) {
+            currentRole = role;
+            document.getElementById('role-selection-screen').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
+
+            toggleDocenteRegister(false);
+
+            const title = document.getElementById('auth-title');
+            const subtitle = document.getElementById('auth-subtitle');
+            const labelIdent = document.getElementById('label-identifier');
+            const inputIdent = document.getElementById('login-identifier');
+            const inputPass = document.getElementById('login-password');
+            const inputPin = document.getElementById('login-pin');
+            const btnSubmit = document.getElementById('login-submit-btn');
+            const docPinField = document.getElementById('docente-pin-field');
+            const docRegOption = document.getElementById('docente-register-option');
+
+            inputIdent.value = "";
+            inputPass.value = "";
+            inputPin.value = "";
+
+            if (role === 'docente') {
+                title.innerText = "Acceso Docente";
+                subtitle.innerText = "Ingresa tus credenciales docentes registradas y PIN de 4 dígitos.";
+                labelIdent.innerText = "Correo Electrónico Docente";
+                inputIdent.placeholder = "docente@outlook.cl";
+                btnSubmit.className = "w-full bg-chile-purple hover:bg-chile-purple-dark text-white font-extrabold py-3 rounded-lg shadow-md transition text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center space-x-2 active:scale-98";
+                docPinField.classList.remove('hidden');
+                docRegOption.classList.remove('hidden');
+                inputPin.required = true;
+            } else {
+                title.innerText = "Acceso Estudiante";
+                subtitle.innerText = "Ingresa con el correo y clave asignados por tu docente.";
+                labelIdent.innerText = "Correo Electrónico Estudiante";
+                inputIdent.placeholder = "estudiante@ejemplo.cl";
+                btnSubmit.className = "w-full bg-chile-blue hover:bg-chile-blue-dark text-white font-extrabold py-3 rounded-lg shadow-md transition text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center space-x-2 active:scale-98";
+                docPinField.classList.add('hidden');
+                docRegOption.classList.add('hidden');
+                inputPin.required = false;
+            }
+        }
+
+        function toggleDocenteRegister(showRegister) {
+            const loginCard = document.getElementById('login-card');
+            const regCard = document.getElementById('register-docente-card');
+            
+            if (showRegister) {
+                loginCard.classList.add('hidden');
+                regCard.classList.remove('hidden');
+            } else {
+                regCard.classList.add('hidden');
+                loginCard.classList.remove('hidden');
+            }
+        }
+
+        function handleDocenteRegister(e) {
+            e.preventDefault();
+            const nombre = document.getElementById('reg-doc-nombre').value.trim();
+            const rut = document.getElementById('reg-doc-rut').value.trim();
+            const fono = document.getElementById('reg-doc-fono').value.trim();
+            const correo = document.getElementById('reg-doc-correo').value.trim().toLowerCase();
+            const pass = document.getElementById('reg-doc-pass').value;
+            const pin = document.getElementById('reg-doc-pin').value.trim();
+
+            if (pin.length !== 4) {
+                showToast("El PIN de seguridad debe ser exactamente de 4 dígitos.");
+                return;
+            }
+
+            if (docentesDB.some(d => d.correo.toLowerCase() === correo)) {
+                showToast("Este correo de docente ya está en la base de datos.");
+                return;
+            }
+
+            const newDoc = {
+                id: Date.now(),
+                nombreCompleto: nombre,
+                nombre: nombre.split(' ')[0] || nombre,
+                rut: rut,
+                fono: fono,
+                correo: correo,
+                pass: pass,
+                pin: pin,
+                rol: "docente"
+            };
+
+            docentesDB.push(newDoc);
+            currentUser = newDoc;
+            showToast("Perfil de docente creado con éxito.");
+            startSession();
+        }
+
+        function iniciarRecuperacionCuenta() {
+            const correo = prompt("Detectamos que intentas restablecer tu cuenta de docente.\nIngresa tu correo institucional/personal (ej: Outlook):");
+            if (!correo) return;
+
+            const doc = docentesDB.find(d => d.correo.toLowerCase() === correo.trim().toLowerCase());
+            
+            if (!doc) {
+                alert("No hemos detectado un perfil registrado con ese correo en la base de datos.");
+                return;
+            }
+
+            const pinIngresado = prompt("Verificación de Seguridad Anti-Robo:\nIngresa tu PIN de Seguridad de 4 dígitos:");
+            if (pinIngresado === doc.pin) {
+                const nuevaPass = prompt("Verificación exitosa. Ingresa tu NUEVA contraseña segura:");
+                if (nuevaPass && nuevaPass.trim().length > 3) {
+                    doc.pass = nuevaPass.trim();
+                    alert("¡Contraseña restablecida con éxito! Todo ha vuelto a la normalidad. Inicia sesión con tu nueva clave.");
+                } else {
+                    alert("La contraseña no es válida.");
+                }
+            } else {
+                alert("PIN incorrecto. El sistema ha bloqueado el intento de recuperación desautorizado.");
+            }
+        }
+
+        function backToRoleSelection() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('role-selection-screen').classList.remove('hidden');
+            currentRole = null;
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const identifier = document.getElementById('login-identifier').value.trim().toLowerCase();
+            const pass = document.getElementById('login-password').value;
+
+            if (currentRole === 'docente') {
+                const pinInput = document.getElementById('login-pin').value.trim();
+
+                let foundDoc = docentesDB.find(d => d.correo.toLowerCase() === identifier && d.pass === pass && d.pin === pinInput);
+                
+                if (!foundDoc) {
+                    foundDoc = {
+                        id: Date.now(),
+                        nombreCompleto: "Docente Registrado",
+                        nombre: "Docente",
+                        rut: "12.345.678-K",
+                        correo: identifier,
+                        pass: pass,
+                        pin: pinInput,
+                        fono: "+56 9 8765 4321",
+                        rol: "docente"
+                    };
+                    docentesDB.push(foundDoc);
+                }
+
+                currentUser = foundDoc;
+                startSession();
+
+            } else if (currentRole === 'estudiante') {
+                const foundStudent = estudiantesDB.find(st => st.correo.toLowerCase() === identifier && st.pass === pass);
+                if (foundStudent) {
+                    currentUser = foundStudent;
+                    startSession();
+                } else {
+                    showToast("Credenciales de estudiante no encontradas en el sistema.");
+                }
+            }
+        }
+
+        function startSession() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            setupRoleUI();
+            showToast(`Bienvenido/a ${currentUser.nombre || currentUser.nombreCompleto}`);
+        }
+
+        function setupRoleUI() {
+            const isDocente = (currentRole === 'docente');
+            updateHeaderProfile();
+
+            document.getElementById('panel-role-text').innerText = isDocente 
+                ? '/ Panel del Docente' 
+                : '/ Panel del Estudiante';
+
+            document.getElementById('btn-label-1').innerText = isDocente ? "CURSOS Y CREDENCIALES" : "MIS CURSOS";
+            document.getElementById('btn-label-2').innerText = isDocente ? "ADMINISTRAR RECURSOS" : "RECURSOS";
+            document.getElementById('btn-label-3').innerText = isDocente ? "CREAR EVALUACIONES" : "EVALUACIÓN";
+        }
+
+        function updateHeaderProfile() {
+            if (!currentUser) return;
+            const isDocente = (currentRole === 'docente');
+
+            document.getElementById('greeting-title').innerText = `¡Hola! ${currentUser.nombre || currentUser.nombreCompleto}`;
+            document.getElementById('display-nombre').innerText = currentUser.nombreCompleto || currentUser.nombre;
+            document.getElementById('display-rol').innerText = isDocente ? 'Docente' : 'Estudiante';
+            document.getElementById('display-rut').innerText = currentUser.rut || "Sin RUT";
+            document.getElementById('display-correo').innerText = currentUser.correo;
+            document.getElementById('display-fono').innerText = currentUser.fono || "Sin Fono";
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0 || isNaN(bytes)) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function getProgresoEstudianteCurso(estudianteId, cursoId) {
+            if (!progresoEstudiantes[estudianteId]) {
+                progresoEstudiantes[estudianteId] = {};
+            }
+            if (!progresoEstudiantes[estudianteId][cursoId]) {
+                progresoEstudiantes[estudianteId][cursoId] = { pdfDownloaded: false, videoWatched: false };
+            }
+            const prog = progresoEstudiantes[estudianteId][cursoId];
+            let total = 0;
+            if (prog.pdfDownloaded) total += 50;
+            if (prog.videoWatched) total += 50;
+            return total;
+        }
+
+        function esEvaluacionRendida(estudianteId, cursoId) {
+            if (!evaluacionesRendidas[estudianteId]) return false;
+            return !!evaluacionesRendidas[estudianteId][cursoId];
+        }
+
+        function estaCursoDesbloqueado(estudianteId, cursoIndex) {
+            if (cursoIndex === 0) return true;
+            const cursoAnterior = cursosDB[cursoIndex - 1];
+            if (!cursoAnterior) return true;
+            const progresoRecursos = getProgresoEstudianteCurso(estudianteId, cursoAnterior.id);
+            const evalRendida = esEvaluacionRendida(estudianteId, cursoAnterior.id);
+            return (progresoRecursos === 100 && evalRendida);
+        }
+
+        function agregarNuevoCursoDocente(e) {
+            e.preventDefault();
+            const nombre = document.getElementById('new-course-name').value.trim();
+            const desc = document.getElementById('new-course-desc').value.trim();
+
+            if (!nombre) {
+                showToast("Por favor ingresa el nombre del curso.");
+                return;
+            }
+
+            cursosDB.push({
+                id: Date.now(),
+                nombre: nombre,
+                descripcion: desc || "Sin descripción."
+            });
+
+            showToast(`Curso "${nombre}" creado.`);
+            openModal('courses');
+        }
+
+        function registrarEstudiantePorDocente(e) {
+            e.preventDefault();
+            const nombreComp = document.getElementById('st-nombre-completo').value.trim();
+            const rut = document.getElementById('st-rut').value.trim();
+            const correo = document.getElementById('st-correo').value.trim().toLowerCase();
+            const fono = document.getElementById('st-fono').value.trim();
+            const pass = document.getElementById('st-pass').value;
+
+            if (estudiantesDB.some(st => st.correo.toLowerCase() === correo)) {
+                showToast("Este correo de estudiante ya está registrado.");
+                return;
+            }
+
+            estudiantesDB.push({
+                id: Date.now(),
+                nombreCompleto: nombreComp,
+                nombre: nombreComp.split(' ')[0] || nombreComp,
+                rut: rut,
+                correo: correo,
+                fono: fono,
+                pass: pass,
+                docenteAsignador: currentUser.correo
+            });
+
+            showToast("Perfil de estudiante creado con éxito.");
+            openModal('courses');
+        }
+
+        function eliminarEstudiante(stId) {
+            estudiantesDB = estudiantesDB.filter(s => s.id !== stId);
+            delete progresoEstudiantes[stId];
+            delete evaluacionesRendidas[stId];
+            showToast("Estudiante eliminado.");
+            openModal('courses');
+        }
+
+        function subirArchivoDocente(e) {
+            e.preventDefault();
+            const cursoId = parseInt(document.getElementById('upload-curso-id').value);
+            const tipo = document.getElementById('upload-tipo').value;
+
+            const fileInput1 = document.getElementById('upload-file-input-1');
+            const fileInput2 = document.getElementById('upload-file-input-2');
+            const urlInput = document.getElementById('upload-url-input');
+
+            if (tipo === 'DOS_VIDEOS') {
+                const f1 = fileInput1.files[0];
+                const f2 = fileInput2.files[0];
+                if (!f1 || !f2) {
+                    showToast("Debes cargar ambos archivos de video MP4.");
+                    return;
+                }
+                materialesDB.push({
+                    id: Date.now(),
+                    cursoId: cursoId,
+                    titulo: `Video 1: ${f1.name}`,
+                    tipo: 'MP4_FILE',
+                    tamano: formatBytes(f1.size),
+                    url: URL.createObjectURL(f1)
+                });
+                materialesDB.push({
+                    id: Date.now() + 1,
+                    cursoId: cursoId,
+                    titulo: `Video 2: ${f2.name}`,
+                    tipo: 'MP4_FILE',
+                    tamano: formatBytes(f2.size),
+                    url: URL.createObjectURL(f2)
+                });
+            } else if (tipo === 'SOLO_MP4') {
+                const f1 = fileInput1.files[0];
+                if (!f1) {
+                    showToast("Selecciona el archivo de video MP4.");
+                    return;
+                }
+                materialesDB.push({
+                    id: Date.now(),
+                    cursoId: cursoId,
+                    titulo: f1.name,
+                    tipo: 'MP4_FILE',
+                    tamano: formatBytes(f1.size),
+                    url: URL.createObjectURL(f1)
+                });
+            } else if (tipo === 'URL_ZOOM') {
+                const link = urlInput.value.trim();
+                if (!link) {
+                    showToast("Ingresa la URL del Zoom.");
+                    return;
+                }
+                materialesDB.push({
+                    id: Date.now(),
+                    cursoId: cursoId,
+                    titulo: `Grabación Zoom: ${link.substring(0, 25)}...`,
+                    tipo: 'URL_ZOOM',
+                    tamano: "Enlace Web",
+                    url: link
+                });
+            } else if (tipo === 'DOC_PDF') {
+                const f1 = fileInput1.files[0];
+                if (!f1) {
+                    showToast("Selecciona el archivo PDF.");
+                    return;
+                }
+                materialesDB.push({
+                    id: Date.now(),
+                    cursoId: cursoId,
+                    titulo: f1.name,
+                    tipo: 'DOC',
+                    tamano: formatBytes(f1.size),
+                    url: URL.createObjectURL(f1)
+                });
+            }
+
+            showToast("Recurso cargado en tiempo real.");
+            openModal('resources');
+        }
+
+        function alternarTipoEntradaRecurso() {
+            const tipo = document.getElementById('upload-tipo').value;
+            const container1 = document.getElementById('container-input-file-1');
+            const container2 = document.getElementById('container-input-file-2');
+            const containerUrl = document.getElementById('container-input-url');
+
+            container1.classList.add('hidden');
+            container2.classList.add('hidden');
+            containerUrl.classList.add('hidden');
+
+            if (tipo === 'DOS_VIDEOS') {
+                container1.classList.remove('hidden');
+                container2.classList.remove('hidden');
+            } else if (tipo === 'SOLO_MP4' || tipo === 'DOC_PDF') {
+                container1.classList.remove('hidden');
+            } else if (tipo === 'URL_ZOOM') {
+                containerUrl.classList.remove('hidden');
+            }
+        }
+
+        function descargarOVerMaterial(cursoId, materialId, tipo) {
+            const material = materialesDB.find(m => m.id === materialId);
+
+            if (currentRole === 'estudiante') {
+                const stId = currentUser.id;
+                if (!progresoEstudiantes[stId]) progresoEstudiantes[stId] = {};
+                if (!progresoEstudiantes[stId][cursoId]) progresoEstudiantes[stId][cursoId] = { pdfDownloaded: false, videoWatched: false };
+
+                if (tipo === 'DOC') {
+                    progresoEstudiantes[stId][cursoId].pdfDownloaded = true;
+                    showToast("Documento de estudio revisado (50% progreso).");
+                } else {
+                    progresoEstudiantes[stId][cursoId].videoWatched = true;
+                    showToast("Video/Clase visualizado (50% progreso).");
+                }
+            }
+
+            if (material) {
+                if (tipo === 'URL_ZOOM') {
+                    window.open(material.url, '_blank');
+                } else if (tipo === 'MP4_FILE') {
+                    reproducirVideoModal(material.titulo, material.url);
+                } else {
+                    const a = document.createElement('a');
+                    a.href = material.url;
+                    a.download = material.titulo;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                }
+            }
+
+            if (currentRole === 'estudiante') {
+                openModal('resources');
+            }
+        }
+
+        function reproducirVideoModal(titulo, url) {
+            const tempDiv = document.createElement('div');
+            tempDiv.className = "fixed inset-0 bg-black/80 z-[10000] flex items-center justify-center p-3";
+            tempDiv.id = "video-player-overlay";
+            tempDiv.innerHTML = `
+                <div class="bg-white rounded-xl overflow-hidden max-w-3xl w-full p-3 sm:p-4 relative" onclick="event.stopPropagation()">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-bold text-xs sm:text-sm text-gray-800 truncate pr-2"><i class="fa-solid fa-circle-play text-chile-purple mr-2"></i>${titulo}</h3>
+                        <button onclick="document.getElementById('video-player-overlay').remove()" class="text-gray-500 hover:text-black font-bold text-xl">&times;</button>
+                    </div>
+                    <video controls class="w-full rounded bg-black max-h-[60vh]" autoplay src="${url}">
+                        Tu navegador no soporta el reproductor de video.
+                    </video>
+                </div>
+            `;
+            document.body.appendChild(tempDiv);
+        }
+
+        let preguntasFilas = [];
+
+        function iniciarPreguntasFilas() {
+            preguntasFilas = [{ id: Date.now(), pregunta: "", opA: "", opB: "", opC: "", opD: "", correcta: 0 }];
+            renderFilasPreguntas();
+        }
+
+        function agregarFilaPregunta() {
+            preguntasFilas.push({ id: Date.now() + Math.random(), pregunta: "", opA: "", opB: "", opC: "", opD: "", correcta: 0 });
+            renderFilasPreguntas();
+        }
+
+        function eliminarFilaPregunta(index) {
+            if (preguntasFilas.length <= 1) {
+                showToast("Debes mantener al menos una pregunta.");
+                return;
+            }
+            preguntasFilas.splice(index, 1);
+            renderFilasPreguntas();
+        }
+
+        function guardarValoresFilas() {
+            preguntasFilas.forEach((item, idx) => {
+                const txtPreg = document.getElementById(`fila_preg_${idx}`);
+                const opA = document.getElementById(`fila_opA_${idx}`);
+                const opB = document.getElementById(`fila_opB_${idx}`);
+                const opC = document.getElementById(`fila_opC_${idx}`);
+                const opD = document.getElementById(`fila_opD_${idx}`);
+                const radCorr = document.querySelector(`input[name="fila_corr_${idx}"]:checked`);
+
+                if (txtPreg) item.pregunta = txtPreg.value;
+                if (opA) item.opA = opA.value;
+                if (opB) item.opB = opB.value;
+                if (opC) item.opC = opC.value;
+                if (opD) item.opD = opD.value;
+                if (radCorr) item.correcta = parseInt(radCorr.value);
+            });
+        }
+
+        function renderFilasPreguntas() {
+            guardarValoresFilas();
+            const container = document.getElementById('filas-preguntas-container');
+            if (!container) return;
+
+            let html = ``;
+
+            preguntasFilas.forEach((item, idx) => {
+                html += `
+                    <div class="bg-white border-2 border-gray-200 rounded-xl p-3 sm:p-4 space-y-3 shadow-sm">
+                        <div class="flex items-center justify-between border-b pb-2">
+                            <span class="font-extrabold text-xs sm:text-sm text-chile-purple flex items-center">
+                                <i class="fa-solid fa-list-check mr-2 text-amber-500"></i> Pregunta #${idx + 1}
+                            </span>
+                            <button type="button" onclick="eliminarFilaPregunta(${idx})" class="text-red-600 hover:text-red-800 text-xs font-bold transition">
+                                <i class="fa-solid fa-trash-can mr-1"></i> Eliminar
+                            </button>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-700 uppercase mb-1">Pregunta</label>
+                            <input type="text" id="fila_preg_${idx}" value="${item.pregunta}" placeholder="Pregunta..." class="w-full p-2 border border-gray-300 rounded text-xs bg-slate-50 focus:bg-white" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-700 uppercase mb-1">Opciones:</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
+                                <div class="flex items-center space-x-2 bg-slate-50 p-2 rounded border border-gray-200">
+                                    <input type="radio" name="fila_corr_${idx}" value="0" ${item.correcta === 0 ? 'checked' : ''} class="w-4 h-4 text-purple-600 cursor-pointer">
+                                    <span class="font-bold text-xs text-gray-700 w-5">A)</span>
+                                    <input type="text" id="fila_opA_${idx}" value="${item.opA}" placeholder="Opción A" class="w-full p-1 border rounded text-xs bg-white" required>
+                                </div>
+                                <div class="flex items-center space-x-2 bg-slate-50 p-2 rounded border border-gray-200">
+                                    <input type="radio" name="fila_corr_${idx}" value="1" ${item.correcta === 1 ? 'checked' : ''} class="w-4 h-4 text-purple-600 cursor-pointer">
+                                    <span class="font-bold text-xs text-gray-700 w-5">B)</span>
+                                    <input type="text" id="fila_opB_${idx}" value="${item.opB}" placeholder="Opción B" class="w-full p-1 border rounded text-xs bg-white" required>
+                                </div>
+                                <div class="flex items-center space-x-2 bg-slate-50 p-2 rounded border border-gray-200">
+                                    <input type="radio" name="fila_corr_${idx}" value="2" ${item.correcta === 2 ? 'checked' : ''} class="w-4 h-4 text-purple-600 cursor-pointer">
+                                    <span class="font-bold text-xs text-gray-700 w-5">C)</span>
+                                    <input type="text" id="fila_opC_${idx}" value="${item.opC}" placeholder="Opción C" class="w-full p-1 border rounded text-xs bg-white" required>
+                                </div>
+                                <div class="flex items-center space-x-2 bg-slate-50 p-2 rounded border border-gray-200">
+                                    <input type="radio" name="fila_corr_${idx}" value="3" ${item.correcta === 3 ? 'checked' : ''} class="w-4 h-4 text-purple-600 cursor-pointer">
+                                    <span class="font-bold text-xs text-gray-700 w-5">D)</span>
+                                    <input type="text" id="fila_opD_${idx}" value="${item.opD}" placeholder="Opción D" class="w-full p-1 border rounded text-xs bg-white" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function guardarEvaluacionFilasDocente(e) {
+            e.preventDefault();
+            guardarValoresFilas();
+
+            const cursoSelect = document.getElementById('eval-docente-curso');
+            if (!cursoSelect || !cursoSelect.value) return;
+
+            const cursoId = parseInt(cursoSelect.value);
+            let preguntasFormateadas = [];
+
+            preguntasFilas.forEach((item, idx) => {
+                preguntasFormateadas.push({
+                    pregunta: `${idx + 1}. ${item.pregunta}`,
+                    opciones: [item.opA, item.opB, item.opC, item.opD],
+                    correcta: item.correcta || 0
+                });
+            });
+
+            const cursoObj = cursosDB.find(c => c.id === cursoId);
+
+            evaluacionesDB.push({
+                id: Date.now(),
+                cursoId: cursoId,
+                docenteCorreo: currentUser.correo,
+                titulo: `Evaluación - ${cursoObj ? cursoObj.nombre : 'Curso'}`,
+                preguntas: preguntasFormateadas
+            });
+
+            showToast("Evaluación publicada.");
+            openModal('tests');
+        }
+
+        function openModal(key) {
+            const modalIcon = document.getElementById('modal-icon');
+            const isDocente = (currentRole === 'docente');
+
+            if (key === 'help_service') {
+                document.getElementById('modal-title').innerText = "SERVICIO DE AYUDA Y SOPORTE";
+                modalIcon.className = 'fa-solid fa-headset text-amber-400 text-2xl';
+
+                document.getElementById('modal-body').innerHTML = `
+                    <div class="space-y-4 text-xs sm:text-sm text-gray-700">
+                        <div class="bg-blue-50 border-l-4 border-chile-blue p-4 rounded-r">
+                            <h4 class="font-bold text-blue-900 text-sm mb-1">Mesa de Ayuda Aula Virtual</h4>
+                            <p>Soporte técnico directo para Chile Innova 2050.</p>
+                        </div>
+                    </div>
+                `;
+            } else if (key === 'courses') {
+                document.getElementById('modal-title').innerText = isDocente ? "CURSOS Y CREDENCIALES" : "MIS CURSOS";
+                modalIcon.className = 'fa-solid fa-graduation-cap text-amber-400 text-2xl';
+
+                let html = `<div class="space-y-5">`;
+
+                if (isDocente) {
+                    html += `
+                        <div class="bg-purple-50 p-4 rounded-xl border border-purple-200 space-y-3">
+                            <h4 class="font-bold text-xs sm:text-sm text-purple-900"><i class="fa-solid fa-user-plus mr-1"></i> Crear Perfil e Credenciales de Estudiante</h4>
+                            <form onsubmit="registrarEstudiantePorDocente(event)" class="space-y-3 text-xs">
+                                <div>
+                                    <label class="block font-bold text-gray-700 mb-1">Nombre Completo del Estudiante</label>
+                                    <input type="text" id="st-nombre-completo" placeholder="Ej: Juan Pérez" required class="w-full p-2 border rounded bg-white">
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block font-bold text-gray-700 mb-1">RUT</label>
+                                        <input type="text" id="st-rut" placeholder="12.345.678-9" required class="w-full p-2 border rounded bg-white">
+                                    </div>
+                                    <div>
+                                        <label class="block font-bold text-gray-700 mb-1">Correo Electrónico</label>
+                                        <input type="email" id="st-correo" placeholder="estudiante@ejemplo.com" required class="w-full p-2 border rounded bg-white">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block font-bold text-gray-700 mb-1">Teléfono Fono</label>
+                                        <input type="text" id="st-fono" placeholder="+56 9 1234 5678" required class="w-full p-2 border rounded bg-white">
+                                    </div>
+                                    <div>
+                                        <label class="block font-bold text-gray-700 mb-1">Contraseña de Acceso</label>
+                                        <input type="password" id="st-pass" placeholder="••••••••" required class="w-full p-2 border rounded bg-white">
+                                    </div>
+                                </div>
+                                <button type="submit" class="w-full bg-chile-purple hover:bg-purple-900 text-white font-bold py-2.5 rounded-lg text-xs uppercase shadow transition active:scale-98">
+                                    Registrar Estudiante
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-200 space-y-3">
+                            <h4 class="font-bold text-xs sm:text-sm text-blue-900"><i class="fa-solid fa-square-plus mr-1"></i> Agregar Curso</h4>
+                            <form onsubmit="agregarNuevoCursoDocente(event)" class="space-y-3 text-xs">
+                                <div>
+                                    <label class="block font-bold text-gray-700 mb-1">Nombre del Curso</label>
+                                    <input type="text" id="new-course-name" placeholder="Ej: Transformación Digital" required class="w-full p-2 border rounded bg-white">
+                                </div>
+                                <div>
+                                    <label class="block font-bold text-gray-700 mb-1">Descripción</label>
+                                    <textarea id="new-course-desc" placeholder="Descripción..." rows="2" class="w-full p-2 border rounded bg-white"></textarea>
+                                </div>
+                                <button type="submit" class="w-full bg-chile-blue hover:bg-chile-blue-dark text-white font-bold py-2.5 rounded-lg text-xs uppercase shadow transition active:scale-98">
+                                    + Agregar Otro Curso
+                                </button>
+                            </form>
+                        </div>
+                    `;
+                }
+
+                html += `</div>`;
+                document.getElementById('modal-body').innerHTML = html;
+            } else if (key === 'resources') {
+                document.getElementById('modal-title').innerText = isDocente ? "ADMINISTRAR RECURSOS" : "RECURSOS";
+                modalIcon.className = 'fa-solid fa-folder-open text-amber-400 text-2xl';
+
+                let html = `<div class="space-y-5">`;
+
+                if (isDocente) {
+                    html += `
+                        <div class="bg-purple-50 p-4 rounded-xl border border-purple-200 space-y-3">
+                            <h4 class="font-bold text-xs sm:text-sm text-purple-900"><i class="fa-solid fa-cloud-arrow-up mr-1"></i> Cargar Recurso a un Curso</h4>
+                            ${cursosDB.length === 0 ? '<p class="text-xs text-amber-700 font-semibold">Crea primero un curso para asociarle recursos.</p>' : `
+                                <form onsubmit="subirArchivoDocente(event)" class="space-y-3 text-xs">
+                                    <div>
+                                        <label class="block font-bold text-gray-700 mb-1">Seleccionar Curso</label>
+                                        <select id="upload-curso-id" class="w-full p-2 border rounded bg-white">
+                                            ${cursosDB.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block font-bold text-gray-700 mb-1">Opciones de Recurso</label>
+                                        <select id="upload-tipo" onchange="alternarTipoEntradaRecurso()" class="w-full p-2 border rounded bg-white">
+                                            <option value="DOS_VIDEOS">2 Casillas de Video MP4</option>
+                                            <option value="SOLO_MP4">1 Casilla de Solo .MP4</option>
+                                            <option value="URL_ZOOM">Enlace Zoom URL (Opcional)</option>
+                                            <option value="DOC_PDF">Documento PDF (50% Avance)</option>
+                                        </select>
+                                    </div>
+                                    <div id="container-input-file-1">
+                                        <label class="block font-bold text-gray-700 mb-1">Archivo #1</label>
+                                        <input type="file" id="upload-file-input-1" class="w-full p-1.5 border rounded bg-white text-xs">
+                                    </div>
+                                    <div id="container-input-file-2" class="hidden">
+                                        <label class="block font-bold text-gray-700 mb-1">Archivo #2 (MP4)</label>
+                                        <input type="file" id="upload-file-input-2" class="w-full p-1.5 border rounded bg-white text-xs">
+                                    </div>
+                                    <div id="container-input-url" class="hidden">
+                                        <label class="block font-bold text-gray-700 mb-1">Enlace Zoom URL</label>
+                                        <input type="url" id="upload-url-input" placeholder="https://zoom.us/j/..." class="w-full p-2 border rounded bg-white text-xs">
+                                    </div>
+                                    <button type="submit" class="w-full bg-chile-purple hover:bg-purple-900 text-white font-bold py-2.5 rounded-lg text-xs uppercase shadow transition active:scale-98">
+                                        Cargar Recurso
+                                    </button>
+                                </form>
+                            `}
+                        </div>
+                    `;
+                }
+
+                html += `</div>`;
+                document.getElementById('modal-body').innerHTML = html;
+            } else if (key === 'tests') {
+                document.getElementById('modal-title').innerText = isDocente ? "CREAR EVALUACIONES" : "EVALUACIÓN";
+                modalIcon.className = 'fa-solid fa-file-signature text-amber-400 text-2xl';
+
+                let html = `<div class="space-y-5">`;
+
+                if (isDocente) {
+                    html += `
+                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-4">
+                            <h4 class="font-bold text-xs sm:text-sm text-gray-800"><i class="fa-solid fa-plus-circle text-chile-purple mr-1"></i> Crear Evaluación por Filas</h4>
+                            ${cursosDB.length === 0 ? '<p class="text-xs text-amber-700 font-bold">Crea al menos un curso para asignarle evaluación.</p>' : `
+                                <form onsubmit="guardarEvaluacionFilasDocente(event)" class="space-y-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">Curso Asignado</label>
+                                        <select id="eval-docente-curso" class="w-full p-2 border rounded-lg text-xs bg-white font-semibold">
+                                            ${cursosDB.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')}
+                                        </select>
+                                    </div>
+
+                                    <div id="filas-preguntas-container" class="space-y-3"></div>
+
+                                    <button type="button" onclick="agregarFilaPregunta()" class="w-full bg-slate-200 hover:bg-slate-300 font-bold py-2.5 rounded-lg text-xs text-gray-800 transition flex items-center justify-center space-x-2 border border-slate-300">
+                                        <i class="fa-solid fa-plus text-chile-purple"></i>
+                                        <span>AGREGAR OTRA PREGUNTA (+)</span >
+                                    </button>
+
+                                    <button type="submit" class="w-full bg-chile-purple hover:bg-purple-900 text-white font-bold py-3 rounded-lg text-xs uppercase shadow transition active:scale-98">
+                                        Publicar Evaluación
+                                    </button>
+                                </form>
+                            `}
+                        </div>
+                    `;
+                }
+
+                html += `</div>`;
+                document.getElementById('modal-body').innerHTML = html;
+                if (isDocente && cursosDB.length > 0) {
+                    iniciarPreguntasFilas();
+                }
+            }
+
+            document.getElementById('modal-overlay').classList.remove('hidden');
+        }
+
+        function preventBackdropClose(event) {
+            event.stopPropagation();
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.add('hidden');
+        }
+
+        function resetView() {
+            closeModal();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = "bg-gray-900 text-white px-4 py-3 rounded-lg shadow-xl mb-2 text-xs sm:text-sm flex items-center space-x-2 transition transform translate-y-2 opacity-0";
+            toast.innerHTML = `<i class="fa-solid fa-circle-info text-blue-400 flex-shrink-0"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            currentRole = null;
+            closeModal();
+            document.getElementById('main-app').classList.add('hidden');
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('role-selection-screen').classList.remove('hidden');
+            showToast("Sesión cerrada.");
+        }
+    </script>
+</body>
+</html>
